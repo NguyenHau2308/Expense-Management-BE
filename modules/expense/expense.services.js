@@ -1,22 +1,28 @@
-const knex = require('../../db'); // Lưu ý đường dẫn tới `db.js`
+const pool = require('../../db'); // Import kết nối DB từ db.js
 
 exports.getList = async () => {
-  return knex('expenses').select('*').orderBy('date', 'desc');
+  const { rows } = await pool.query('SELECT * FROM expenses ORDER BY date DESC');
+  return rows;
 };
 
 exports.create = async (data) => {
-  const [newExpense] = await knex('expenses').insert(data).returning('*');
-  return newExpense;
+  const { title, amount, category, date } = data;
+  const { rows } = await pool.query(
+    'INSERT INTO expenses (title, amount, category, date) VALUES ($1, $2, $3, $4) RETURNING *',
+    [title, amount, category, date || new Date()]
+  );
+  return rows[0];
 };
 
 exports.update = async (id, data) => {
-  const [updatedExpense] = await knex('expenses')
-    .where({ id })
-    .update({ ...data, updated_at: knex.fn.now() })
-    .returning('*');
-  return updatedExpense;
+  const { title, amount, category, date } = data;
+  const { rows } = await pool.query(
+    'UPDATE expenses SET title = $1, amount = $2, category = $3, date = $4, updated_at = NOW() WHERE id = $5 RETURNING *',
+    [title, amount, category, date, id]
+  );
+  return rows[0];
 };
 
 exports.delete = async (id) => {
-  return knex('expenses').where({ id }).del();
+  await pool.query('DELETE FROM expenses WHERE id = $1', [id]);
 };

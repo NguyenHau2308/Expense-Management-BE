@@ -1,13 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const port = 8888; // cổng chạy server backend
+const port = 8888;
 
 app.use(cors());
-// Để parse JSON request body (nếu cần):
 app.use(express.json());
 
-// Định nghĩa 1 route GET đơn giản
+// Route mặc định để kiểm tra server có hoạt động không
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
+
+// Route API test
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from backend!' });
 });
@@ -15,4 +19,3 @@ app.get('/api/hello', (req, res) => {
 app.listen(port, () => {
   console.log(`Backend server đang chạy tại http://localhost:${port}`);
 });
-// aloalo
